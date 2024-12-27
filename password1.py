@@ -6,6 +6,74 @@ import qrcode
 from PIL import Image, ImageTk
 from tkinter import messagebox, filedialog
 
+# Пример: файл, в котором хранится лицензионный ключ
+LICENSE_FILE = "license.txt"
+VALID_LICENSE_KEY = "12"  # Замените на ваш лицензионный ключ
+
+# Функция для проверки существующего ключа
+def check_license():
+    try:
+        with open(LICENSE_FILE, "r") as file:
+            stored_key = file.read().strip()
+            if stored_key == VALID_LICENSE_KEY:
+                return True
+            else:
+                return False
+    except FileNotFoundError:
+        return False
+
+# Функция для запроса лицензионного ключа у пользователя
+def request_license_key():
+    license_key = entry_license_key.get()  # Используем глобальную переменную
+    if license_key == VALID_LICENSE_KEY:  # Проверка ключа
+        with open(LICENSE_FILE, "w") as file:
+            file.write(license_key)  # Сохраняем ключ в файл
+        messagebox.showinfo("Успех", "Лицензия подтверждена!")
+        license_window.quit()  # Закрываем окно ввода ключа
+        show_main_window()  # Показываем главное окно после активации
+    else:
+        messagebox.showerror("Ошибка", "Неверный лицензионный ключ!")
+
+# Запрос лицензионного ключа при запуске, если его нет
+def license_prompt():
+    if not check_license():  # Проверяем наличие и корректность ключа
+        # Если ключ не найден или неправильный, показываем окно для ввода ключа
+        global license_window, entry_license_key  # Делаем переменные глобальными
+        license_window = tk.Toplevel(root)
+        license_window.title("Лицензия")
+        license_window.geometry("300x150")
+
+        label_license_key = tk.Label(license_window, text="Введите лицензионный ключ:")
+        label_license_key.pack(pady=10)
+        entry_license_key = tk.Entry(license_window, show="*")  # Поле для ввода ключа
+        entry_license_key.pack(pady=10)
+        button_verify = tk.Button(license_window, text="Подтвердить", command=request_license_key)  # Кнопка подтверждения
+        button_verify.pack(pady=10)
+
+        license_window.mainloop()
+
+# Функция для отображения основного окна программы
+def show_main_window():
+    root.deiconify()  # Показываем главное окно
+    license_window.destroy()  # Закрываем окно с лицензией
+    enable_all_buttons()  # Включаем все кнопки после активации
+
+# Функция для блокировки всех кнопок в главном окне
+def disable_all_buttons():
+    button_generate.config(state=tk.DISABLED)
+    button_copy.config(state=tk.DISABLED)
+    button_save.config(state=tk.DISABLED)
+    button_show_qr.config(state=tk.DISABLED)
+    button_toggle_theme.config(state=tk.DISABLED)
+
+# Функция для включения всех кнопок после активации
+def enable_all_buttons():
+    button_generate.config(state=tk.NORMAL)
+    button_copy.config(state=tk.NORMAL)
+    button_save.config(state=tk.NORMAL)
+    button_show_qr.config(state=tk.NORMAL)
+    button_toggle_theme.config(state=tk.NORMAL)
+
 # Функция для генерации пароля
 def generate_password(length=12, use_digits=True, use_letters=True, use_specials=True):
     alphabet = ''
@@ -123,28 +191,43 @@ def toggle_theme():
         root.config(bg="#2e2e2e")
         frame_options.config(bg="#2e2e2e", highlightbackground="#444", highlightcolor="#444")
         label_length.config(bg="#2e2e2e", fg="#ffffff")
-        entry_length.config(bg="#444444", fg="#ffffff", insertbackground="#ffffff")
-        button_generate.config(bg="#555555", fg="#ffffff")
-        button_copy.config(bg="#555555", fg="#ffffff")
-        button_toggle_theme.config(bg="#555555", fg="#ffffff")
+        entry_length.config(bg="#444444", fg="#ffffff", insertbackground="#ffffff", highlightbackground="#555555")
+        button_generate.config(bg="#555555", fg="#ffffff", activebackground="#666666", activeforeground="#ffffff")
+        button_copy.config(bg="#555555", fg="#ffffff", activebackground="#666666", activeforeground="#ffffff")
+        button_save.config(bg="#555555", fg="#ffffff", activebackground="#666666", activeforeground="#ffffff")
+        button_show_qr.config(bg="#555555", fg="#ffffff", activebackground="#666666", activeforeground="#ffffff")
+        button_toggle_theme.config(bg="#555555", fg="#ffffff", activebackground="#666666", activeforeground="#ffffff")
         label_password.config(bg="#2e2e2e", fg="#ffffff")
         label_strength.config(bg="#2e2e2e", fg="#ffffff")
         label_history.config(bg="#2e2e2e", fg="#ffffff")
-        text_history.config(bg="#444444", fg="#ffffff", insertbackground="#ffffff")
-        var_digits.set(True)
+        text_history.config(bg="#444444", fg="#ffffff", insertbackground="#ffffff", highlightbackground="#555555")
+        
+        # Обновляем стили чекбоксов
+        check_digits.config(bg="#2e2e2e", fg="#ffffff", activebackground="#2e2e2e", activeforeground="#aa00ff", selectcolor="#444444")
+        check_letters.config(bg="#2e2e2e", fg="#ffffff", activebackground="#2e2e2e", activeforeground="#aa00ff", selectcolor="#444444")
+        check_specials.config(bg="#2e2e2e", fg="#ffffff", activebackground="#2e2e2e", activeforeground="#aa00ff", selectcolor="#444444")
+        
         current_theme = 'dark'
     else:
         root.config(bg="#ffffff")
         frame_options.config(bg="#ffffff", highlightbackground="#ccc", highlightcolor="#ccc")
         label_length.config(bg="#ffffff", fg="#000000")
-        entry_length.config(bg="#ffffff", fg="#000000", insertbackground="#000000")
-        button_generate.config(bg="#f0f0f0", fg="#000000")
-        button_copy.config(bg="#f0f0f0", fg="#000000")
-        button_toggle_theme.config(bg="#f0f0f0", fg="#000000")
+        entry_length.config(bg="#ffffff", fg="#000000", insertbackground="#000000", highlightbackground="#cccccc")
+        button_generate.config(bg="#f0f0f0", fg="#000000", activebackground="#e0e0e0", activeforeground="#000000")
+        button_copy.config(bg="#f0f0f0", fg="#000000", activebackground="#e0e0e0", activeforeground="#000000")
+        button_save.config(bg="#f0f0f0", fg="#000000", activebackground="#e0e0e0", activeforeground="#000000")
+        button_show_qr.config(bg="#f0f0f0", fg="#000000", activebackground="#e0e0e0", activeforeground="#000000")
+        button_toggle_theme.config(bg="#f0f0f0", fg="#000000", activebackground="#e0e0e0", activeforeground="#000000")
         label_password.config(bg="#ffffff", fg="#000000")
         label_strength.config(bg="#ffffff", fg="#000000")
         label_history.config(bg="#ffffff", fg="#000000")
-        text_history.config(bg="#ffffff", fg="#000000", insertbackground="#000000")
+        text_history.config(bg="#ffffff", fg="#000000", insertbackground="#000000", highlightbackground="#cccccc")
+        
+        # Обновляем стили чекбоксов
+        check_digits.config(bg="#ffffff", fg="#000000", activebackground="#ffffff", activeforeground="#000000", selectcolor="#f0f0f0")
+        check_letters.config(bg="#ffffff", fg="#000000", activebackground="#ffffff", activeforeground="#000000", selectcolor="#f0f0f0")
+        check_specials.config(bg="#ffffff", fg="#000000", activebackground="#ffffff", activeforeground="#000000", selectcolor="#f0f0f0")
+        
         current_theme = 'light'
 
 # Инициализация главного окна
@@ -217,8 +300,11 @@ text_history.pack(pady=5, padx=10)
 label_footer = tk.Label(root, text="Created by Apathy", font=("Helvetica", 7), anchor="w")
 label_footer.pack(side="bottom", anchor="w", padx=10, pady=5)
 
-# Установка начальной темы
-toggle_theme()
+# Скрываем основное окно до активации
+root.withdraw()
+
+# Запрос лицензии
+license_prompt()
 
 # Запуск приложения
 root.mainloop()

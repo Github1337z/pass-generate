@@ -5,7 +5,7 @@ a = Analysis(
     ['password1.py'],
     pathex=[],
     binaries=[],
-    datas=[('pass.ico', '.')],
+    datas=[],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -35,4 +35,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon=['11.ico'],
 )
